@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1173</width>
-    <height>676</height>
+    <width>1157</width>
+    <height>791</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="cerrarAplicativo">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>600</y>
+      <x>690</x>
+      <y>690</y>
       <width>381</width>
       <height>31</height>
      </rect>
@@ -454,17 +454,17 @@
    <widget class="QLabel" name="ImagenColores">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>360</y>
-      <width>341</width>
-      <height>271</height>
+      <x>700</x>
+      <y>380</y>
+      <width>371</width>
+      <height>251</height>
      </rect>
     </property>
     <property name="text">
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>ImagenColores.jpg</pixmap>
+     <pixmap>Chart.jpeg</pixmap>
     </property>
    </widget>
   </widget>
@@ -473,7 +473,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1173</width>
+     <width>1157</width>
      <height>21</height>
     </rect>
    </property>

@@ -2,12 +2,13 @@
 import sys
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
+from pyqtgraph import PlotWidget, plot
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
 import pandas as pd
 from pip._internal.utils.misc import tabulate
 from scipy import stats
 from tabulate import tabulate
-import numpy as np
+from time import process_time
 
 class ejemplo_GUI(QMainWindow):
 
@@ -17,6 +18,12 @@ class ejemplo_GUI(QMainWindow):
     contadorColumnas = 0
     global preprocessed_data
     global cols
+    global tic
+    global toc
+    global difTime    
+    global _start_time 
+    global n 
+    n = 50 
     cols = []
 
     # Función que se ejecuta cuando se inicia el aplicativo
@@ -35,7 +42,7 @@ class ejemplo_GUI(QMainWindow):
         self.ckboxOneSample.stateChanged.connect(self.Check_OneSample)
         self.checkBox_2.stateChanged.connect(self.Check_Paired)
         self.CkboxCorrelaciones.stateChanged.connect(self.Check_Correlations)
-
+        
         #self.procesarArchivo.clicked.connect(self.Ttest_1samp)
         # Definición de campos deshabilitados u ocultos cuando se inicia la aplicación
         # Definition of disabled or hidden fields  when the app start
@@ -56,6 +63,7 @@ class ejemplo_GUI(QMainWindow):
             self.CkboxCorrelaciones.setChecked(False)
             self.procesarArchivo.clicked.connect(self.Ttest_1samp)
             self.procesarArchivo.setEnabled(True)
+            self.ImagenColores.setHidden(True)
 
     def Check_Paired(self):
         if self.checkBox_2.isChecked():
@@ -64,6 +72,8 @@ class ejemplo_GUI(QMainWindow):
             self.CkboxCorrelaciones.setChecked(False)
             self.ckboxOneSample.setChecked(False)
             self.procesarArchivo.setEnabled(True)
+            self.procesarArchivo.clicked.connect(self.fn_generarPairedTTest)
+            self.ImagenColores.setHidden(True)
 
     def Check_Correlations(self):
         if self.CkboxCorrelaciones.isChecked():
@@ -72,11 +82,13 @@ class ejemplo_GUI(QMainWindow):
             self.ckboxOneSample.setChecked(False)
             self.checkBox_2.setChecked(False)
             self.procesarArchivo.clicked.connect(self.fn_procesarArchivo)
-            self.procesarArchivo.setEnabled(True)
-    
+            self.procesarArchivo.setEnabled(True)   
+            self.ImagenColores.setHidden(False)     
+        
 ### Metodo de ONE SAMPLE
 
     def Ttest_1samp(self):
+        _start_time = process_time()
         seasons_mapping = {1: 'winter', 2: 'spring', 3: 'summer', 4: 'fall'}
         preprocessed_data['season'] = preprocessed_data['season'].apply(lambda x: seasons_mapping[x])
 
@@ -109,16 +121,18 @@ class ejemplo_GUI(QMainWindow):
         sample = preprocessed_data[(preprocessed_data.season == "summer") &(preprocessed_data.yr == 2011)].registered
         population_mean = preprocessed_data.registered.mean()
         test_res = stats.ttest_1samp(sample, population_mean)
-       
+        
+        t1_stop = process_time()
+        tiempo = t1_stop-_start_time
+
         self.resultadoCorrelacion.setText(tabulate(resultado,cabecera) + " \n " 
-        + "_--------------------------------------------------------------" + " \n "
-        + "Resultado del analisis de la muestra" + " \n "
+        + "_--------------------------------------------------------------" 
+        + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos"
+        + "\n Resultado del analisis de la muestra" + " \n "
         +f"Statistic value: {test_res[0]:.03f}, \ p-value: {test_res[1]:.03f}" )
 
         # get sample of the data (summer 2011)
         #sample = preprocessed_data[(preprocessed_data.season == "summer") &(preprocessed_data.yr == 2011)].registered
-        
-
 
 # Función para borrar los campos o columnas seleccionadas que se incluirán en el analisis de correlación
 # Function for erase the selected fields o selected columns that will be includ in the correlation analysis
@@ -177,6 +191,7 @@ class ejemplo_GUI(QMainWindow):
 # Función para realizar el analisis de correlacion con el archivo cargado y las variables seleccionadas
 # Function for make the correlation analysis with the uploaded file and the variables selected
     def fn_procesarArchivo(self):
+        _start_time = process_time()
         def compute_correlations(data, col):
             pearson_reg = stats.pearsonr(data[col], data["registered"])[0]
             pearson_cas = stats.pearsonr(data[col], data["casual"])[0]
@@ -198,8 +213,24 @@ class ejemplo_GUI(QMainWindow):
         for col in cols:
             print(f'Data: {col}');
             corr_data[col] = compute_correlations(preprocessed_data, col)
-        self.resultadoCorrelacion.setText(tabulate(corr_data.T, headers='keys', tablefmt='psql'))
+
+        t1_stop = process_time()
+        tiempo = t1_stop-_start_time
+
+        self.resultadoCorrelacion.setText(tabulate(corr_data.T,headers='keys', tablefmt='psql') + " \n " 
+        + "_--------------------------------------------------------------" 
+        + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos")
+
         self.ImagenColores.setHidden(False)
+
+    def fn_generarPairedTTest(self, event):
+        _start_time = process_time()
+        resultado = stats.ttest_ind(preprocessed_data[cols[0]], preprocessed_data[cols[1]], equal_var=True)
+        t1_stop = process_time()
+        tiempo = t1_stop-_start_time
+        self.resultadoCorrelacion.setText('Resultado Paired T-Test: \n statistic: ' + str(resultado[0]) + ' \n pvalue: '+ str(resultado[1])
+        + "_--------------------------------------------------------------" 
+        + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos" )
 
 # Función para cerrar el aplicativo
 # Function for close the app
