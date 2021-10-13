@@ -9,6 +9,9 @@ from pip._internal.utils.misc import tabulate
 from scipy import stats
 from tabulate import tabulate
 from time import process_time
+import matplotlib.pyplot as plt
+from PyQt5.QtGui import QPixmap
+import numpy as np
 
 class ejemplo_GUI(QMainWindow):
 
@@ -63,7 +66,7 @@ class ejemplo_GUI(QMainWindow):
             self.CkboxCorrelaciones.setChecked(False)
             self.procesarArchivo.clicked.connect(self.Ttest_1samp)
             self.procesarArchivo.setEnabled(True)
-            self.ImagenColores.setHidden(True)
+            self.ImagenColores.setHidden(False)
 
     def Check_Paired(self):
         if self.checkBox_2.isChecked():
@@ -130,6 +133,36 @@ class ejemplo_GUI(QMainWindow):
         + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos"
         + "\n Resultado del analisis de la muestra" + " \n "
         +f"Statistic value: {test_res[0]:.03f}, \ p-value: {test_res[1]:.03f}" )
+
+        #fig, (ax1) = plt.subplots(1, figsize=(10,5))
+        #ax1.scatter(preprocessed_data['windspeed'], preprocessed_data['hum'])
+
+        #Grafica linear
+        # fig = plt.figure()
+        # ax1 = fig.add_subplot(2,1,1)
+        # ax1.plot(preprocessed_data['windspeed'], preprocessed_data['hum'])
+       
+        # Matriz de colores
+        colus = ["temp", "atemp", "hum", "windspeed", "registered", "casual"]
+        plot_data = preprocessed_data[colus]
+        corr = plot_data.corr()
+        fig = plt.figure(figsize=(10,5))
+        plt.matshow(corr, fignum=fig.number)
+        plt.xticks(range(len(plot_data.columns)), plot_data.columns)
+        plt.yticks(range(len(plot_data.columns)), plot_data.columns)
+        plt.colorbar()
+        plt.ylim([5.5, -0.5])
+
+        #ax1.set_title(f'Linear relationship\n Pearson: {test_res[0]:.03f}')
+        fig.savefig('C:/DataAnalysis/Analisis/GraficoCorrelacion.png', format='png')
+
+        pixmap = QPixmap('C:/DataAnalysis/Analisis/GraficoCorrelacion.png')
+        self.ImagenColores.setPixmap(pixmap)
+        #self.setCentralWidget(self.ImagenColores)
+        self.ImagenColores.setScaledContents(False)
+        self.resize(pixmap.width(), pixmap.height())
+
+
 
         # get sample of the data (summer 2011)
         #sample = preprocessed_data[(preprocessed_data.season == "summer") &(preprocessed_data.yr == 2011)].registered
