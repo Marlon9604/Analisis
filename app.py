@@ -71,7 +71,7 @@ class ejemplo_GUI(QMainWindow):
             self.procesarArchivo.setEnabled(True)
             self.ImagenColores.setHidden(False)
             global maxColumnas
-            maxColumnas = 1
+            maxColumnas = 10
 
     def Check_Paired(self):
         if self.checkBox_2.isChecked():
@@ -101,40 +101,15 @@ class ejemplo_GUI(QMainWindow):
 
     def Ttest_1samp(self):
         _start_time = process_time()
-        # seasons_mapping = {1: 'winter', 2: 'spring', 3: 'summer', 4: 'fall'}
-        # preprocessed_data['season'] = preprocessed_data['season'].apply(lambda x: seasons_mapping[x])
-
-        # # transform yr
-        # yr_mapping = {0: 2011, 1: 2012}
-        # preprocessed_data['yr'] = preprocessed_data['yr'].apply(lambda x: yr_mapping[x])
-
-        # # transform weekday
-        # weekday_mapping = {0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday'}
-        # preprocessed_data['weekday'] = preprocessed_data['weekday'].apply(lambda x: weekday_mapping[x])
-
-        # # transform weathersit
-        # weather_mapping = {1: 'clear', 2: 'cloudy', 3: 'light_rain_snow', 4: 'heavy_rain_snow'}
-        # preprocessed_data['weathersit'] = preprocessed_data['weathersit'].apply(lambda x: weather_mapping[x]) 
-
-        # # transorm hum and windspeed
-        # preprocessed_data['hum'] = preprocessed_data['hum']*100
-        # preprocessed_data['hum'] = preprocessed_data['hum'].astype(str).str[0:3]
-
-        # preprocessed_data['windspeed'] = preprocessed_data['windspeed']*67
-        # preprocessed_data['windspeed'] = preprocessed_data['windspeed'].astype(str).str[0:3]
-
         cabecera = cols
         columna = cols[0]        
-        print('Esto' + str(preprocessed_data['mnth'].mnth))
-        resultado = random.sample(preprocessed_data[columna], self.SbCantidaRegis.value());
+        resultado = preprocessed_data[columna].sample(n=self.SbCantidaRegis.value(), replace=True, random_state=1)
         population_mean = resultado.mean()
-        print('Media' + str(population_mean))
         test_res = stats.ttest_1samp(resultado, population_mean)
-        print("TEst " + str(population_mean))
         t1_stop = process_time()
         tiempo = t1_stop-_start_time
 
-        self.resultadoCorrelacion.setText(tabulate(resultado,cabecera) + " \n " 
+        self.resultadoCorrelacion.setText(tabulate(resultado.to_string(index=False),cabecera) + " \n " 
         + "_--------------------------------------------------------------" 
         + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos"
         + "\n Resultado del analisis de la muestra" + " \n "
