@@ -12,6 +12,7 @@ from time import process_time
 import matplotlib.pyplot as plt
 from PyQt5.QtGui import QPixmap
 import numpy as np
+import random
 
 class ejemplo_GUI(QMainWindow):
 
@@ -27,6 +28,8 @@ class ejemplo_GUI(QMainWindow):
     global _start_time 
     global n 
     n = 50 
+    global maxColumnas
+    maxColumnas = 0
     cols = []
 
     # Función que se ejecuta cuando se inicia el aplicativo
@@ -67,6 +70,8 @@ class ejemplo_GUI(QMainWindow):
             self.procesarArchivo.clicked.connect(self.Ttest_1samp)
             self.procesarArchivo.setEnabled(True)
             self.ImagenColores.setHidden(False)
+            global maxColumnas
+            maxColumnas = 1
 
     def Check_Paired(self):
         if self.checkBox_2.isChecked():
@@ -77,6 +82,8 @@ class ejemplo_GUI(QMainWindow):
             self.procesarArchivo.setEnabled(True)
             self.procesarArchivo.clicked.connect(self.fn_generarPairedTTest)
             self.ImagenColores.setHidden(True)
+            global maxColumnas
+            maxColumnas = 2
 
     def Check_Correlations(self):
         if self.CkboxCorrelaciones.isChecked():
@@ -87,44 +94,43 @@ class ejemplo_GUI(QMainWindow):
             self.procesarArchivo.clicked.connect(self.fn_procesarArchivo)
             self.procesarArchivo.setEnabled(True)   
             self.ImagenColores.setHidden(False)     
+            global maxColumnas
+            maxColumnas = 4
         
 ### Metodo de ONE SAMPLE
 
     def Ttest_1samp(self):
         _start_time = process_time()
-        seasons_mapping = {1: 'winter', 2: 'spring', 3: 'summer', 4: 'fall'}
-        preprocessed_data['season'] = preprocessed_data['season'].apply(lambda x: seasons_mapping[x])
+        # seasons_mapping = {1: 'winter', 2: 'spring', 3: 'summer', 4: 'fall'}
+        # preprocessed_data['season'] = preprocessed_data['season'].apply(lambda x: seasons_mapping[x])
 
-        # transform yr
-        yr_mapping = {0: 2011, 1: 2012}
-        preprocessed_data['yr'] = preprocessed_data['yr'].apply(lambda x: yr_mapping[x])
+        # # transform yr
+        # yr_mapping = {0: 2011, 1: 2012}
+        # preprocessed_data['yr'] = preprocessed_data['yr'].apply(lambda x: yr_mapping[x])
 
-        # transform weekday
-        weekday_mapping = {0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday'}
-        preprocessed_data['weekday'] = preprocessed_data['weekday'].apply(lambda x: weekday_mapping[x])
+        # # transform weekday
+        # weekday_mapping = {0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday'}
+        # preprocessed_data['weekday'] = preprocessed_data['weekday'].apply(lambda x: weekday_mapping[x])
 
-        # transform weathersit
-        weather_mapping = {1: 'clear', 2: 'cloudy', 3: 'light_rain_snow', 4: 'heavy_rain_snow'}
-        preprocessed_data['weathersit'] = preprocessed_data['weathersit'].apply(lambda x: weather_mapping[x]) 
+        # # transform weathersit
+        # weather_mapping = {1: 'clear', 2: 'cloudy', 3: 'light_rain_snow', 4: 'heavy_rain_snow'}
+        # preprocessed_data['weathersit'] = preprocessed_data['weathersit'].apply(lambda x: weather_mapping[x]) 
 
-        # transorm hum and windspeed
-        preprocessed_data['hum'] = preprocessed_data['hum']*100
-        preprocessed_data['hum'] = preprocessed_data['hum'].astype(str).str[0:3]
+        # # transorm hum and windspeed
+        # preprocessed_data['hum'] = preprocessed_data['hum']*100
+        # preprocessed_data['hum'] = preprocessed_data['hum'].astype(str).str[0:3]
 
-        preprocessed_data['windspeed'] = preprocessed_data['windspeed']*67
-        preprocessed_data['windspeed'] = preprocessed_data['windspeed'].astype(str).str[0:3]
-
-
-        # visualize preprocessed columns
-        #cols = ['season', 'yr', 'weekday', 'weathersit', 'hum']
-        #headers = ["registration",'season', 'yr', 'weekday', 'weathersit', 'hum']
+        # preprocessed_data['windspeed'] = preprocessed_data['windspeed']*67
+        # preprocessed_data['windspeed'] = preprocessed_data['windspeed'].astype(str).str[0:3]
 
         cabecera = cols
-        resultado = preprocessed_data[cols].sample(self.SbCantidaRegis.value())
-        sample = preprocessed_data[(preprocessed_data.season == "summer") &(preprocessed_data.yr == 2011)].registered
-        population_mean = preprocessed_data.registered.mean()
-        test_res = stats.ttest_1samp(sample, population_mean)
-        
+        columna = cols[0]        
+        print('Esto' + str(preprocessed_data['mnth'].mnth))
+        resultado = random.sample(preprocessed_data[columna], self.SbCantidaRegis.value());
+        population_mean = resultado.mean()
+        print('Media' + str(population_mean))
+        test_res = stats.ttest_1samp(resultado, population_mean)
+        print("TEst " + str(population_mean))
         t1_stop = process_time()
         tiempo = t1_stop-_start_time
 
@@ -133,39 +139,6 @@ class ejemplo_GUI(QMainWindow):
         + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos"
         + "\n Resultado del analisis de la muestra" + " \n "
         +f"Statistic value: {test_res[0]:.03f}, \ p-value: {test_res[1]:.03f}" )
-
-        #fig, (ax1) = plt.subplots(1, figsize=(10,5))
-        #ax1.scatter(preprocessed_data['windspeed'], preprocessed_data['hum'])
-
-        #Grafica linear
-        # fig = plt.figure()
-        # ax1 = fig.add_subplot(2,1,1)
-        # ax1.plot(preprocessed_data['windspeed'], preprocessed_data['hum'])
-       
-        # Matriz de colores
-        colus = ["temp", "atemp", "hum", "windspeed", "registered", "casual"]
-        plot_data = preprocessed_data[colus]
-        corr = plot_data.corr()
-        fig = plt.figure(figsize=(10,5))
-        plt.matshow(corr, fignum=fig.number)
-        plt.xticks(range(len(plot_data.columns)), plot_data.columns)
-        plt.yticks(range(len(plot_data.columns)), plot_data.columns)
-        plt.colorbar()
-        plt.ylim([5.5, -0.5])
-
-        #ax1.set_title(f'Linear relationship\n Pearson: {test_res[0]:.03f}')
-        fig.savefig('C:/DataAnalysis/Analisis/GraficoCorrelacion.png', format='png')
-
-        pixmap = QPixmap('C:/DataAnalysis/Analisis/GraficoCorrelacion.png')
-        self.ImagenColores.setPixmap(pixmap)
-        #self.setCentralWidget(self.ImagenColores)
-        self.ImagenColores.setScaledContents(False)
-        self.resize(pixmap.width(), pixmap.height())
-
-
-
-        # get sample of the data (summer 2011)
-        #sample = preprocessed_data[(preprocessed_data.season == "summer") &(preprocessed_data.yr == 2011)].registered
 
 # Función para borrar los campos o columnas seleccionadas que se incluirán en el analisis de correlación
 # Function for erase the selected fields o selected columns that will be includ in the correlation analysis
@@ -188,18 +161,18 @@ class ejemplo_GUI(QMainWindow):
 # Function for add fields or columns from the file CVS uploaded for the analysis of correlation
     def fn_adicionarColumnas(self):
         # Varible global que controla 4 campos o columnas para el analisis de correlación
-        # Global variable that manage four fields or columns fro the correlations analysis
+        # Global variable that manage four fields or columns fro the correlations analysis      
         global contadorColumnas
         contadorColumnas += 1
         # Validación de selección de máximo 4 columnas o campos
         # Validation of selection from maximum four columns or fields
-        if contadorColumnas <= 4:
+        if contadorColumnas <= maxColumnas:
             self.textColumnas.setText(self.textColumnas.toPlainText() + self.ListadoCampos.currentText() + '\n')
             global cols
             cols.append(str(self.ListadoCampos.currentText()))
         # Si ya fueron seleccionados los 4 campos para el analisis de correlación
         # If the four fields or columns already been selected for the correlations analysis
-            if contadorColumnas == 4:
+            if contadorColumnas == maxColumnas:
                 self.mensajeErrorColumnas.setHidden(False)
                 self.ListadoCampos.setEnabled(False)
                 self.Adicionar.setEnabled(False)
@@ -255,6 +228,22 @@ class ejemplo_GUI(QMainWindow):
         + "\n Tiempo de procesamiento de la muestra: " + str(tiempo) + " segundos")
 
         self.ImagenColores.setHidden(False)
+               
+        # Matriz de colores
+        plot_data = preprocessed_data[cols]
+        corr = plot_data.corr()
+        fig = plt.figure(figsize=(10,5))
+        plt.matshow(corr, fignum=fig.number)
+        plt.xticks(range(len(plot_data.columns)), plot_data.columns)
+        plt.yticks(range(len(plot_data.columns)), plot_data.columns)
+        plt.colorbar()
+        plt.ylim([5.5, -0.5])
+
+        fig.savefig('C:/DataAnalysis/Analisis/GraficoCorrelacion.png', format='png')
+        pixmap = QPixmap('C:/DataAnalysis/Analisis/GraficoCorrelacion.png')
+        self.ImagenColores.setPixmap(pixmap)
+        self.ImagenColores.setScaledContents(True)
+        self.resize(pixmap.width(), pixmap.height())
 
     def fn_generarPairedTTest(self, event):
         _start_time = process_time()
