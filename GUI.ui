@@ -61,7 +61,7 @@
      </font>
     </property>
     <property name="text">
-     <string>CORRELACIONES SPEARMANR Y PEARSON</string>
+     <string>T-TEST SAMPLE Y CORRELACIONES</string>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBox">
@@ -189,7 +189,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Segundo Ejemplo</string>
+       <string>Paired sample</string>
       </property>
      </widget>
      <widget class="QCheckBox" name="CkboxCorrelaciones">
@@ -285,7 +285,7 @@
       <x>60</x>
       <y>360</y>
       <width>541</width>
-      <height>211</height>
+      <height>261</height>
      </rect>
     </property>
     <property name="font">
@@ -420,12 +420,35 @@
       <string>No puede agregar mas campos</string>
      </property>
     </widget>
+    <widget class="QComboBox" name="ListadoCampos_2">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>220</y>
+       <width>361</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Campo a comparar:</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="ImagenColores">
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>380</y>
+      <y>410</y>
       <width>371</width>
       <height>251</height>
      </rect>
@@ -471,7 +494,7 @@
      <x>0</x>
      <y>0</y>
      <width>1157</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

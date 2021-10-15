@@ -60,6 +60,8 @@ class ejemplo_GUI(QMainWindow):
         self.label_3.setEnabled(False)
         self.SbCantidaRegis.setEnabled(False)
         self.procesarArchivo.setEnabled(False)
+        self.label_4.setHidden(True) 
+        self.ListadoCampos_2.setHidden(True) 
 
     def Check_OneSample(self):
         if self.ckboxOneSample.isChecked():
@@ -69,7 +71,9 @@ class ejemplo_GUI(QMainWindow):
             self.CkboxCorrelaciones.setChecked(False)
             self.procesarArchivo.clicked.connect(self.Ttest_1samp)
             self.procesarArchivo.setEnabled(True)
-            self.ImagenColores.setHidden(False)
+            self.ImagenColores.setHidden(False)                      
+            self.label_4.setHidden(True) 
+            self.ListadoCampos_2.setHidden(True) 
             global maxColumnas
             maxColumnas = 10
 
@@ -81,7 +85,9 @@ class ejemplo_GUI(QMainWindow):
             self.ckboxOneSample.setChecked(False)
             self.procesarArchivo.setEnabled(True)
             self.procesarArchivo.clicked.connect(self.fn_generarPairedTTest)
-            self.ImagenColores.setHidden(True)
+            self.ImagenColores.setHidden(True)              
+            self.label_4.setHidden(True) 
+            self.ListadoCampos_2.setHidden(True) 
             global maxColumnas
             maxColumnas = 2
 
@@ -93,7 +99,9 @@ class ejemplo_GUI(QMainWindow):
             self.checkBox_2.setChecked(False)
             self.procesarArchivo.clicked.connect(self.fn_procesarArchivo)
             self.procesarArchivo.setEnabled(True)   
-            self.ImagenColores.setHidden(False)     
+            self.ImagenColores.setHidden(False)    
+            self.label_4.setHidden(False) 
+            self.ListadoCampos_2.setHidden(False) 
             global maxColumnas
             maxColumnas = 4
         
@@ -168,28 +176,25 @@ class ejemplo_GUI(QMainWindow):
         self.ListadoCampos.setEnabled(True)
         self.Adicionar.setEnabled(True)
         self.borrarColumnas.setEnabled(True)
+        self.ListadoCampos_2.addItems(preprocessed_data.columns.tolist())
 
 # Función para realizar el analisis de correlacion con el archivo cargado y las variables seleccionadas
 # Function for make the correlation analysis with the uploaded file and the variables selected
     def fn_procesarArchivo(self):
         _start_time = process_time()
         def compute_correlations(data, col):
-            pearson_reg = stats.pearsonr(data[col], data["registered"])[0]
-            pearson_cas = stats.pearsonr(data[col], data["casual"])[0]
-            spearman_reg = stats.spearmanr(data[col], data["registered"])[0]
-            spearman_cas = stats.spearmanr(data[col], data["casual"])[0]
+            pearson_corr = stats.pearsonr(data[col], data[self.ListadoCampos_2.currentText()])[0]
+            spearman_corr = stats.spearmanr(data[col], data[self.ListadoCampos_2.currentText()])[0]
 
             # Se realiza el cálculo de la correlación de la serie seleccionada
             # The correlation calculation from the selected series is performed
-            return pd.Series({"Pearson (registered)": pearson_reg,
-                              "Spearman (registered)": spearman_reg,
-                              "Pearson (casual)": pearson_cas,
-                              "Spearman (casual)": spearman_cas})
+            return pd.Series({"Pearson ("+self.ListadoCampos_2.currentText()+")": pearson_corr,
+                              "Spearman ("+self.ListadoCampos_2.currentText()+")": spearman_corr})
 
         # Se calculan las  medidas de correlación entre diferentes características
         # The correlation measures is compute between different features
         corr_data = pd.DataFrame(
-            index=["Pearson (registered)", "Spearman (registered)", "Pearson (casual)", "Spearman (casual)"])
+            index=["Pearson ("+self.ListadoCampos_2.currentText()+")", "Spearman ("+self.ListadoCampos_2.currentText()+")"])
         global cols
         for col in cols:
             print(f'Data: {col}');
@@ -212,7 +217,7 @@ class ejemplo_GUI(QMainWindow):
         plt.xticks(range(len(plot_data.columns)), plot_data.columns)
         plt.yticks(range(len(plot_data.columns)), plot_data.columns)
         plt.colorbar()
-        plt.ylim([5.5, -0.5])
+        #plt.ylim([5.5, -0.5])
 
         fig.savefig('C:/DataAnalysis/Analisis/GraficoCorrelacion.png', format='png')
         pixmap = QPixmap('C:/DataAnalysis/Analisis/GraficoCorrelacion.png')
